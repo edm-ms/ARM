@@ -1,0 +1,169 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "vnetAddressPrefix": {
+        "type": "array",
+        "defaultValue": [
+          "10.1.0.0/16",
+          "10.2.0.0/16",
+          "10.6.0.0/19",
+          "10.3.0.0/16",
+          "10.4.0.0/16",
+          "10.5.0.0/19"
+          ]
+        },
+      "networkLocations": {
+        "type": "array",
+        "defaultValue": [
+          "East US",
+          "West US",
+          "South Central US",
+          "North Europe",
+          "West Europe",
+          "Brazil South"
+        ]
+      },
+      "locationNames": {
+        "type": "array",
+        "defaultValue": [
+          "US-East-VNET1",
+          "US-West-VNET1",
+          "US-SouthCentral-VNET1",
+          "EU-North-VNET1",
+          "EU-West-VNET1",
+          "BR-South-VNET1" 
+        ]
+      },
+      "Environment": {
+        "type": "string",
+        "allowedValues": [
+          "Dev",
+          "Prod"
+        ],
+        "defaultValue": "Prod"
+      }
+    },
+    "variables": {
+      "usWestNetName": "[concat(parameters('Environment'),'-US-West-VNET1')]",
+      "usEastNetName": "[concat(parameters('Environment'),'-US-East-VNET1')]",
+      "eastWestPeer": "[concat(parameters('Environment'),'-US-East-VNET1/PeeringFrom-',parameters('Environment'),'-US-East-VNET1')]",
+      "westEastPeer": "[concat(parameters('Environment'),'-US-West-VNET1/PeeringFrom-',parameters('Environment'),'-US-West-VNET1')]",
+      "euNorthNetName": "[concat(parameters('Environment'),'-EU-North-VNET1')]",
+      "euWestNetName": "[concat(parameters('Environment'),'-EU-West-VNET1')]",
+      "northWestPeer": "[concat(parameters('Environment'),'-EU-North-VNET1/PeeringFrom-',parameters('Environment'),'-EU-North-VNET1')]",
+      "westNorthPeer": "[concat(parameters('Environment'),'-EU-West-VNET1/PeeringFrom-',parameters('Environment'),'-EU-West-VNET1')]",
+      "rgLocation": "[resourceGroup().location]",
+      "gatewayIP": "1.0/24",
+      "managementIP": "2.0/24"
+    },
+    "resources": [
+      {
+        "apiVersion": "2017-06-01",
+        "type": "Microsoft.Network/virtualNetworks",
+        "name": "[concat(parameters('Environment'),'-',parameters('locationNames')[copyIndex()])]",
+        "location": "[concat(parameters('networkLocations')[copyIndex()])]",
+        "copy": {
+          "count": "[length(parameters('networkLocations'))]",
+          "name": "[concat(parameters('Environment'),'-')]"
+        },
+        "properties": {
+          "addressSpace": {
+            "addressPrefixes": [
+              "[concat(parameters('vnetAddressPrefix')[copyIndex()])]"
+            ]
+          },
+          "subnets": [
+            {
+              "name": "Gateway",
+              "properties": {
+                "addressPrefix": "[concat(split(parameters('vnetAddressPrefix')[copyIndex()],'.')[0],'.',split(parameters('vnetAddressPrefix')[copyIndex()],'.')[1],'.',variables('gatewayIP'))]"
+              }
+            },
+            {
+              "name": "Management",
+              "properties": {
+                "addressPrefix": "[concat(split(parameters('vnetAddressPrefix')[copyIndex()],'.')[0],'.',split(parameters('vnetAddressPrefix')[copyIndex()],'.')[1],'.',variables('managementIP'))]"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "apiVersion": "2017-06-01",
+        "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+        "name": "[variables('eastWestPeer')]",
+        "location": "[variables('rgLocation')]",
+        "properties": {
+          "allowVirtualNetworkAccess": true,
+          "allowForwardedTraffic": false,
+          "allowGatewayTransit": false,
+          "useRemoteGateways": false,
+          "remoteVirtualNetwork": {
+            "id": "[resourceId('Microsoft.Network/virtualNetworks/', variables('usWestNetName'))]"
+            }
+          },
+          "dependsOn": [
+            "[concat(parameters('Environment'),'-')]",
+            "[concat('Microsoft.Network/virtualNetworks/',parameters('Environment'),'-US-East-VNET1')]"
+          ]
+        },
+        {
+          "apiVersion": "2017-06-01",
+          "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+          "name": "[variables('westEastPeer')]",
+          "location": "[variables('rgLocation')]",
+          "properties": {
+            "allowVirtualNetworkAccess": true,
+            "allowForwardedTraffic": false,
+            "allowGatewayTransit": false,
+            "useRemoteGateways": false,
+            "remoteVirtualNetwork": {
+              "id": "[resourceId('Microsoft.Network/virtualNetworks/', variables('usEastNetName'))]"
+              }
+            },
+            "dependsOn": [
+              "[concat(parameters('Environment'),'-')]",
+              "[concat('Microsoft.Network/virtualNetworks/',parameters('Environment'),'-US-West-VNET1')]"
+            ]
+          },
+          {
+            "apiVersion": "2017-06-01",
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "name": "[variables('northWestPeer')]",
+            "location": "[variables('rgLocation')]",
+            "properties": {
+              "allowVirtualNetworkAccess": true,
+              "allowForwardedTraffic": false,
+              "allowGatewayTransit": false,
+              "useRemoteGateways": false,
+              "remoteVirtualNetwork": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/', variables('euWestNetName'))]"
+                }
+              },
+              "dependsOn": [
+                "[concat(parameters('Environment'),'-')]",
+                "[concat('Microsoft.Network/virtualNetworks/',parameters('Environment'),'-EU-West-VNET1')]"
+              ]
+            },
+            {
+              "apiVersion": "2017-06-01",
+              "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+              "name": "[variables('westNorthPeer')]",
+              "location": "[variables('rgLocation')]",
+              "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": false,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": false,
+                "remoteVirtualNetwork": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks/', variables('euNorthNetName'))]"
+                  }
+                },
+                "dependsOn": [
+                  "[concat(parameters('Environment'),'-')]",
+                  "[concat('Microsoft.Network/virtualNetworks/',parameters('Environment'),'-EU-North-VNET1')]"
+                ]
+              }
+    ]
+  }

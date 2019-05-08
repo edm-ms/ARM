@@ -1,0 +1,39 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "vnetAddressPrefix": {
+        "value": [
+          "10.11.0.0/16",
+          "10.12.0.0/16",
+          "10.16.0.0/19",
+          "10.13.0.0/16",
+          "10.14.0.0/16",
+          "10.15.0.0/19"
+          ]
+        },
+      "networkLocations": {
+        "value": [
+          "East US",
+          "West US",
+          "South Central US",
+          "North Europe",
+          "West Europe",
+          "Brazil South"
+        ]
+      },
+      "locationNames": {
+        "value": [
+          "US-East-VNET1",
+          "US-West-VNET1",
+          "US-SouthCentral-VNET1",
+          "EU-North-VNET1",
+          "EU-West-VNET1",
+          "BR-South-VNET1" 
+        ]
+      },
+      "Environment": {
+        "value": "Dev"
+      }
+    }
+}

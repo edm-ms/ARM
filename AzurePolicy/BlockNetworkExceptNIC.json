@@ -1,0 +1,21 @@
+{
+    "policyRule": {
+        "if": {
+            "allOf": [
+                {
+                    "field": "type",
+                    "like": "Microsoft.Network/*"
+                },
+                {
+                    "not": {
+                        "field": "type",
+                        "like": "Microsoft.Network/networkInterfaces/*"
+                    }
+                }
+            ]
+        },
+        "then": {
+            "effect": "deny"
+        }
+    }
+}
