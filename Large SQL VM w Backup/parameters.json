@@ -1,0 +1,186 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+      "location": {
+          "value": "eastus2"
+      },
+      "networkInterfaceName": {
+          "value": "bigsqlvm36"
+      },
+      "enableAcceleratedNetworking": {
+          "value": true
+      },
+      "networkSecurityGroupName": {
+          "value": "bigsqlvm-nsg"
+      },
+      "networkSecurityGroupRules": {
+          "value": [
+              {
+                  "name": "RDP",
+                  "properties": {
+                      "priority": 300,
+                      "protocol": "TCP",
+                      "access": "Allow",
+                      "direction": "Inbound",
+                      "sourceAddressPrefix": "*",
+                      "sourcePortRange": "*",
+                      "destinationAddressPrefix": "*",
+                      "destinationPortRange": "3389"
+                  }
+              }
+          ]
+      },
+      "subnetName": {
+          "value": "default"
+      },
+      "virtualNetworkName": {
+          "value": "sqlloadtest-vnet"
+      },
+      "addressPrefixes": {
+          "value": [
+              "10.0.0.0/24"
+          ]
+      },
+      "subnets": {
+          "value": [
+              {
+                  "name": "default",
+                  "properties": {
+                      "addressPrefix": "10.0.0.0/24"
+                  }
+              }
+          ]
+      },
+      "publicIpAddressName": {
+          "value": "bigsqlvm-ip"
+      },
+      "publicIpAddressType": {
+          "value": "Dynamic"
+      },
+      "publicIpAddressSku": {
+          "value": "Basic"
+      },
+      "virtualMachineName": {
+          "value": "bigsqlvm"
+      },
+      "virtualMachineRG": {
+          "value": "sqlloadtest"
+      },
+      "osDiskType": {
+          "value": "Premium_LRS"
+      },
+      "dataDisks": {
+          "value": [
+              {
+                  "lun": 0,
+                  "createOption": "empty",
+                  "caching": "ReadOnly",
+                  "writeAcceleratorEnabled": false,
+                  "id": null,
+                  "name": null,
+                  "storageAccountType": "Premium_LRS",
+                  "diskSizeGB": 1023
+              },
+              {
+                  "lun": 1,
+                  "createOption": "empty",
+                  "caching": "ReadOnly",
+                  "writeAcceleratorEnabled": false,
+                  "id": null,
+                  "name": null,
+                  "storageAccountType": "Premium_LRS",
+                  "diskSizeGB": 1023
+              },
+              {
+                  "lun": 2,
+                  "createOption": "empty",
+                  "caching": "ReadOnly",
+                  "writeAcceleratorEnabled": false,
+                  "id": null,
+                  "name": null,
+                  "storageAccountType": "Premium_LRS",
+                  "diskSizeGB": 1023
+              },
+              {
+                  "lun": 3,
+                  "createOption": "empty",
+                  "caching": "ReadOnly",
+                  "writeAcceleratorEnabled": false,
+                  "id": null,
+                  "name": null,
+                  "storageAccountType": "Premium_LRS",
+                  "diskSizeGB": 1023
+              },
+              {
+                  "lun": 4,
+                  "createOption": "empty",
+                  "caching": "ReadOnly",
+                  "writeAcceleratorEnabled": false,
+                  "id": null,
+                  "name": null,
+                  "storageAccountType": "Premium_LRS",
+                  "diskSizeGB": 1023
+              },
+              {
+                  "lun": 5,
+                  "createOption": "empty",
+                  "caching": "ReadOnly",
+                  "writeAcceleratorEnabled": false,
+                  "id": null,
+                  "name": null,
+                  "storageAccountType": "Premium_LRS",
+                  "diskSizeGB": 1023
+              }
+          ]
+      },
+      "virtualMachineSize": {
+          "value": "Standard_D64s_v3"
+      },
+      "adminUsername": {
+          "value": "sqladmin"
+      },
+      "adminPassword": {
+          "value": null
+      },
+      "sqlVirtualMachineLocation": {
+          "value": "eastus2"
+      },
+      "sqlVirtualMachineName": {
+          "value": "bigsqlvm"
+      },
+      "sqlConnectivityType": {
+          "value": "Private"
+      },
+      "sqlPortNumber": {
+          "value": 1433
+      },
+      "sqlStorageDisksCount": {
+          "value": 6
+      },
+      "sqlStorageWorkloadType": {
+          "value": "OLTP"
+      },
+      "sqlStorageDisksConfigurationType": {
+          "value": "NEW"
+      },
+      "sqlStorageStartingDeviceId": {
+          "value": 2
+      },
+      "sqlStorageDeploymentToken": {
+          "value": 17773
+      },
+      "sqlAutopatchingDayOfWeek": {
+          "value": "Sunday"
+      },
+      "sqlAutopatchingStartHour": {
+          "value": "2"
+      },
+      "sqlAutopatchingWindowDuration": {
+          "value": "60"
+      },
+      "rServicesEnabled": {
+          "value": "false"
+      }
+  }
+}
