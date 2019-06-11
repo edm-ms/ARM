@@ -17,9 +17,6 @@
       "networkSecurityGroupRules": {
           "type": "array"
       },
-      "subnetName": {
-          "type": "string"
-      },
       "virtualNetworkName": {
           "type": "string"
       },
@@ -79,33 +76,30 @@
       },
       "sqlStorageDisksConfigurationType": {
           "type": "string"
-      },
-      "sqlStorageStartingDeviceId": {
-          "type": "int"
-      },
-      "sqlStorageDeploymentToken": {
-          "type": "int"
-      },
-      "sqlAutopatchingDayOfWeek": {
-          "type": "string"
-      },
-      "sqlAutopatchingStartHour": {
-          "type": "string"
-      },
-      "sqlAutopatchingWindowDuration": {
-          "type": "string"
-      },
-      "rServicesEnabled": {
-          "type": "string"
       }
   },
   "variables": {
-      "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]",
-      "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
-      "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]"
+      "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', 'sqlNSG')]",
+      "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', 'sqlVNet')]",
+      "subnetRef": "[concat(variables('vnetId'), '/subnets/sqlVNet-sql')]",
+      "rServicesEnabled": "false",
+      "sqlAutopatchingWindowDuration": "60",
+      "sqlAutopatchingStartHour": "2",
+      "sqlAutopatchingDayOfWeek": "Sunday",
+      "sqlStorageStartingDeviceId": 2
   },
   "resources": [
       {
+        {
+          "name": "sqlLoadTest",
+          "type": "Microsoft.Resources/resourceGroups",
+          "apiVersion": "2018-05-01",
+          "location": "eastus2",
+          "tags": {},
+          "properties": {
+          }
+        },
+        {
           "name": "[parameters('networkInterfaceName')]",
           "type": "Microsoft.Network/networkInterfaces",
           "apiVersion": "2018-10-01",
@@ -264,9 +258,9 @@
               "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('sqlVirtualMachineName'))]",
               "AutoPatchingSettings": {
                   "Enable": true,
-                  "DayOfWeek": "[parameters('sqlAutopatchingDayOfWeek')]",
-                  "MaintenanceWindowStartingHour": "[parameters('sqlAutopatchingStartHour')]",
-                  "MaintenanceWindowDuration": "[parameters('sqlAutopatchingWindowDuration')]"
+                  "DayOfWeek": "[variables('sqlAutopatchingDayOfWeek')]",
+                  "MaintenanceWindowStartingHour": "[variables('sqlAutopatchingStartHour')]",
+                  "MaintenanceWindowDuration": "[variables('sqlAutopatchingWindowDuration')]"
               },
               "KeyVaultCredentialSettings": {
                   "Enable": false,
@@ -285,10 +279,10 @@
                   "SQLStorageUpdateSettings": {
                       "DiskCount": "[parameters('sqlStorageDisksCount')]",
                       "DiskConfigurationType": "[parameters('sqlStorageDisksConfigurationType')]",
-                      "StartingDeviceID": "[parameters('sqlStorageStartingDeviceId')]"
+                      "StartingDeviceID": "[variables('sqlStorageStartingDeviceId')]"
                   },
                   "AdditionalFeaturesServerConfigurations": {
-                      "IsRServicesEnabled": "[parameters('rServicesEnabled')]"
+                      "IsRServicesEnabled": "[variables('rServicesEnabled')]"
                   }
               }
           },
