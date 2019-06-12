@@ -103,15 +103,6 @@
   },
   "resources": [
         {
-          "name": "sqltest",
-          "type": "Microsoft.Resources/resourceGroups",
-          "apiVersion": "2018-05-01",
-          "location": "eastus2",
-          "tags": {},
-          "properties": {
-          }
-        },
-        {
           "name": "[variables('networkInterfaceName')]",
           "type": "Microsoft.Network/networkInterfaces",
           "apiVersion": "2018-10-01",
