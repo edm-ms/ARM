@@ -144,14 +144,18 @@
           "apiVersion": "2019-02-01",
           "location": "[parameters('location')]",
           "properties": {
-            "priority": 300,
-            "protocol": "TCP",
-            "access": "Allow",
-            "direction": "Inbound",
-            "sourceAddressPrefix": "*",
-            "sourcePortRange": "*",
-            "destinationAddressPrefix": "*",
-            "destinationPortRange": "3389"
+              "securityRules":[
+                  {
+                    "priority": 300,
+                    "protocol": "TCP",
+                    "access": "Allow",
+                    "direction": "Inbound",
+                    "sourceAddressPrefix": "*",
+                    "sourcePortRange": "*",
+                    "destinationAddressPrefix": "*",
+                    "destinationPortRange": "3389"
+                  }
+              ]
           },
           "tags": {
               "environment": "dev",
