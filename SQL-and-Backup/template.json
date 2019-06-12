@@ -3,7 +3,8 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
       "location": {
-          "type": "string"
+          "type": "string",
+          "defaultValue": "eastus2"
       },
       "networkInterfaceName": {
           "type": "string"
@@ -26,56 +27,11 @@
       "subnets": {
           "type": "array"
       },
-      "publicIpAddressName": {
-          "type": "string"
-      },
-      "publicIpAddressType": {
-          "type": "string"
-      },
-      "publicIpAddressSku": {
-          "type": "string"
-      },
-      "virtualMachineName": {
-          "type": "string"
-      },
-      "virtualMachineRG": {
-          "type": "string"
-      },
-      "osDiskType": {
-          "type": "string"
-      },
-      "dataDisks": {
-          "type": "array"
-      },
-      "virtualMachineSize": {
-          "type": "string"
-      },
       "adminUsername": {
           "type": "string"
       },
       "adminPassword": {
           "type": "secureString"
-      },
-      "sqlVirtualMachineLocation": {
-          "type": "string"
-      },
-      "sqlVirtualMachineName": {
-          "type": "string"
-      },
-      "sqlConnectivityType": {
-          "type": "string"
-      },
-      "sqlPortNumber": {
-          "type": "int"
-      },
-      "sqlStorageDisksCount": {
-          "type": "int"
-      },
-      "sqlStorageWorkloadType": {
-          "type": "string"
-      },
-      "sqlStorageDisksConfigurationType": {
-          "type": "string"
       }
   },
   "variables": {
@@ -86,11 +42,86 @@
       "sqlAutopatchingWindowDuration": "60",
       "sqlAutopatchingStartHour": "2",
       "sqlAutopatchingDayOfWeek": "Sunday",
-      "sqlStorageStartingDeviceId": 2
+      "sqlStorageStartingDeviceId": 2,
+      "sqlStorageDisksConfigurationType": "NEW",
+      "sqlStorageWorkloadType": "OLTP",
+      "sqlStorageDisksCount": 6,
+      "sqlPortNumber": 1433,
+      "sqlConnectivityType": "Private",
+      "sqlVirtualMachineName": "sqltestvm",
+      "sqlVirtualMachineLocation": "eastus2",
+      "virtualMachineSize": "Standard_D64s_v3",
+      "virtualMachineName": "sqltestvm",
+      "osDiskType": "Premium_LRS",
+      "dataDisks": [
+        {
+            "lun": 0,
+            "createOption": "empty",
+            "caching": "ReadOnly",
+            "writeAcceleratorEnabled": false,
+            "id": null,
+            "name": null,
+            "storageAccountType": "Premium_LRS",
+            "diskSizeGB": 1023
+        },
+        {
+            "lun": 1,
+            "createOption": "empty",
+            "caching": "ReadOnly",
+            "writeAcceleratorEnabled": false,
+            "id": null,
+            "name": null,
+            "storageAccountType": "Premium_LRS",
+            "diskSizeGB": 1023
+        },
+        {
+            "lun": 2,
+            "createOption": "empty",
+            "caching": "ReadOnly",
+            "writeAcceleratorEnabled": false,
+            "id": null,
+            "name": null,
+            "storageAccountType": "Premium_LRS",
+            "diskSizeGB": 1023
+        },
+        {
+            "lun": 3,
+            "createOption": "empty",
+            "caching": "ReadOnly",
+            "writeAcceleratorEnabled": false,
+            "id": null,
+            "name": null,
+            "storageAccountType": "Premium_LRS",
+            "diskSizeGB": 1023
+        },
+        {
+            "lun": 4,
+            "createOption": "empty",
+            "caching": "ReadOnly",
+            "writeAcceleratorEnabled": false,
+            "id": null,
+            "name": null,
+            "storageAccountType": "Premium_LRS",
+            "diskSizeGB": 1023
+        },
+        {
+            "lun": 5,
+            "createOption": "empty",
+            "caching": "ReadOnly",
+            "writeAcceleratorEnabled": false,
+            "id": null,
+            "name": null,
+            "storageAccountType": "Premium_LRS",
+            "diskSizeGB": 1023
+        }
+      ],
+      "publicIpAddressSku": "Basic",
+      "publicIpAddressType": "Dynamic",
+      "publicIpAddressName": "sqltest-ip"
   },
   "resources": [
         {
-          "name": "sqlLoadTest",
+          "name": "sqltest",
           "type": "Microsoft.Resources/resourceGroups",
           "apiVersion": "2018-05-01",
           "location": "eastus2",
@@ -106,7 +137,7 @@
           "dependsOn": [
               "[concat('Microsoft.Network/networkSecurityGroups/', parameters('networkSecurityGroupName'))]",
               "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
-              "[concat('Microsoft.Network/publicIpAddresses/', parameters('publicIpAddressName'))]"
+              "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName'))]"
           ],
           "properties": {
               "ipConfigurations": [
@@ -118,7 +149,7 @@
                           },
                           "privateIPAllocationMethod": "Dynamic",
                           "publicIpAddress": {
-                              "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', parameters('publicIpAddressName'))]"
+                              "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]"
                           }
                       }
                   }
@@ -166,15 +197,15 @@
           }
       },
       {
-          "name": "[parameters('publicIpAddressName')]",
+          "name": "[variables('publicIpAddressName')]",
           "type": "Microsoft.Network/publicIpAddresses",
           "apiVersion": "2019-02-01",
           "location": "[parameters('location')]",
           "properties": {
-              "publicIpAllocationMethod": "[parameters('publicIpAddressType')]"
+              "publicIpAllocationMethod": "[variables('publicIpAddressType')]"
           },
           "sku": {
-              "name": "[parameters('publicIpAddressSku')]"
+              "name": "[variables('publicIpAddressSku')]"
           },
           "tags": {
               "environment": "dev",
@@ -183,7 +214,7 @@
           }
       },
       {
-          "name": "[parameters('virtualMachineName')]",
+          "name": "[variables('virtualMachineName')]",
           "type": "Microsoft.Compute/virtualMachines",
           "apiVersion": "2018-10-01",
           "location": "[parameters('location')]",
@@ -192,13 +223,13 @@
           ],
           "properties": {
               "hardwareProfile": {
-                  "vmSize": "[parameters('virtualMachineSize')]"
+                  "vmSize": "[variables('virtualMachineSize')]"
               },
               "storageProfile": {
                   "osDisk": {
                       "createOption": "fromImage",
                       "managedDisk": {
-                          "storageAccountType": "[parameters('osDiskType')]"
+                          "storageAccountType": "[variables('osDiskType')]"
                       }
                   },
                   "imageReference": {
@@ -210,16 +241,16 @@
                   "copy": [
                       {
                           "name": "dataDisks",
-                          "count": "[length(parameters('dataDisks'))]",
+                          "count": "[length(variables('dataDisks'))]",
                           "input": {
-                              "lun": "[parameters('dataDisks')[copyIndex('dataDisks')].lun]",
-                              "createOption": "[parameters('dataDisks')[copyIndex('dataDisks')].createOption]",
-                              "caching": "[parameters('dataDisks')[copyIndex('dataDisks')].caching]",
-                              "writeAcceleratorEnabled": "[parameters('dataDisks')[copyIndex('dataDisks')].writeAcceleratorEnabled]",
-                              "diskSizeGB": "[parameters('dataDisks')[copyIndex('dataDisks')].diskSizeGB]",
+                              "lun": "[variables('dataDisks')[copyIndex('dataDisks')].lun]",
+                              "createOption": "[variables('dataDisks')[copyIndex('dataDisks')].createOption]",
+                              "caching": "[variables('dataDisks')[copyIndex('dataDisks')].caching]",
+                              "writeAcceleratorEnabled": "[variables('dataDisks')[copyIndex('dataDisks')].writeAcceleratorEnabled]",
+                              "diskSizeGB": "[variables('dataDisks')[copyIndex('dataDisks')].diskSizeGB]",
                               "managedDisk": {
-                                  "id": "[coalesce(parameters('dataDisks')[copyIndex('dataDisks')].id, if(equals(parameters('dataDisks')[copyIndex('dataDisks')].name, json('null')), json('null'), resourceId('Microsoft.Compute/disks', parameters('dataDisks')[copyIndex('dataDisks')].name)))]",
-                                  "storageAccountType": "[parameters('dataDisks')[copyIndex('dataDisks')].storageAccountType]"
+                                  "id": "[coalesce(variables('dataDisks')[copyIndex('dataDisks')].id, if(equals(variables('dataDisks')[copyIndex('dataDisks')].name, json('null')), json('null'), resourceId('Microsoft.Compute/disks', variables('dataDisks')[copyIndex('dataDisks')].name)))]",
+                                  "storageAccountType": "[variables('dataDisks')[copyIndex('dataDisks')].storageAccountType]"
                               }
                           }
                       }
@@ -233,7 +264,7 @@
                   ]
               },
               "osProfile": {
-                  "computerName": "[parameters('virtualMachineName')]",
+                  "computerName": "[variables('virtualMachineName')]",
                   "adminUsername": "[parameters('adminUsername')]",
                   "adminPassword": "[parameters('adminPassword')]",
                   "windowsConfiguration": {
@@ -249,12 +280,12 @@
           }
       },
       {
-          "name": "[parameters('sqlVirtualMachineName')]",
+          "name": "[variables('sqlVirtualMachineName')]",
           "type": "Microsoft.SqlVirtualMachine/SqlVirtualMachines",
           "apiVersion": "2017-03-01-preview",
-          "location": "[parameters('sqlVirtualMachineLocation')]",
+          "location": "[variables('sqlVirtualMachineLocation')]",
           "properties": {
-              "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('sqlVirtualMachineName'))]",
+              "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('sqlVirtualMachineName'))]",
               "AutoPatchingSettings": {
                   "Enable": true,
                   "DayOfWeek": "[variables('sqlAutopatchingDayOfWeek')]",
@@ -267,17 +298,17 @@
               },
               "ServerConfigurationsManagementSettings": {
                   "SQLConnectivityUpdateSettings": {
-                      "ConnectivityType": "[parameters('sqlConnectivityType')]",
-                      "Port": "[parameters('sqlPortNumber')]",
+                      "ConnectivityType": "[variables('sqlConnectivityType')]",
+                      "Port": "[variables('sqlPortNumber')]",
                       "SQLAuthUpdateUserName": "",
                       "SQLAuthUpdatePassword": ""
                   },
                   "SQLWorkloadTypeUpdateSettings": {
-                      "SQLWorkloadType": "[parameters('sqlStorageWorkloadType')]"
+                      "SQLWorkloadType": "[variables('sqlStorageWorkloadType')]"
                   },
                   "SQLStorageUpdateSettings": {
-                      "DiskCount": "[parameters('sqlStorageDisksCount')]",
-                      "DiskConfigurationType": "[parameters('sqlStorageDisksConfigurationType')]",
+                      "DiskCount": "[variables('sqlStorageDisksCount')]",
+                      "DiskConfigurationType": "[variables('sqlStorageDisksConfigurationType')]",
                       "StartingDeviceID": "[variables('sqlStorageStartingDeviceId')]"
                   },
                   "AdditionalFeaturesServerConfigurations": {
@@ -286,7 +317,7 @@
               }
           },
           "dependsOn": [
-              "[resourceId('Microsoft.Compute/virtualMachines', parameters('sqlVirtualMachineName'))]"
+              "[resourceId('Microsoft.Compute/virtualMachines', variables('sqlVirtualMachineName'))]"
           ]
       }
   ],
