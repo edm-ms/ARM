@@ -89,7 +89,6 @@
       "sqlStorageStartingDeviceId": 2
   },
   "resources": [
-      {
         {
           "name": "sqlLoadTest",
           "type": "Microsoft.Resources/resourceGroups",
