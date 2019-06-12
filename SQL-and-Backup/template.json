@@ -6,27 +6,6 @@
           "type": "string",
           "defaultValue": "eastus2"
       },
-      "networkInterfaceName": {
-          "type": "string"
-      },
-      "enableAcceleratedNetworking": {
-          "type": "bool"
-      },
-      "networkSecurityGroupName": {
-          "type": "string"
-      },
-      "networkSecurityGroupRules": {
-          "type": "array"
-      },
-      "virtualNetworkName": {
-          "type": "string"
-      },
-      "addressPrefixes": {
-          "type": "array"
-      },
-      "subnets": {
-          "type": "array"
-      },
       "adminUsername": {
           "type": "string"
       },
@@ -37,8 +16,10 @@
   "variables": {
       "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', 'sqlNSG')]",
       "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', 'sqlVNet')]",
-      "subnetRef": "[concat(variables('vnetId'), '/subnets/sqlVNet-sql')]",
+      "subnetRef": "[concat(variables('vnetId'), '/subnets/sql')]",
+      "networkInterfaceName": "sqltest-NIC",
       "rServicesEnabled": "false",
+      "networkSecurityGroupName": "sqlNSG",
       "sqlAutopatchingWindowDuration": "60",
       "sqlAutopatchingStartHour": "2",
       "sqlAutopatchingDayOfWeek": "Sunday",
@@ -48,7 +29,7 @@
       "sqlStorageDisksCount": 6,
       "sqlPortNumber": 1433,
       "sqlConnectivityType": "Private",
-      "sqlVirtualMachineName": "sqltestvm",
+      "sqlVirtualMachineName": "sqltest",
       "sqlVirtualMachineLocation": "eastus2",
       "virtualMachineSize": "Standard_D64s_v3",
       "virtualMachineName": "sqltestvm",
@@ -117,7 +98,8 @@
       ],
       "publicIpAddressSku": "Basic",
       "publicIpAddressType": "Dynamic",
-      "publicIpAddressName": "sqltest-ip"
+      "publicIpAddressName": "sqltest-ip",
+      "virtualNetworkName": "sqlVNet"
   },
   "resources": [
         {
@@ -130,13 +112,13 @@
           }
         },
         {
-          "name": "[parameters('networkInterfaceName')]",
+          "name": "[variables('networkInterfaceName')]",
           "type": "Microsoft.Network/networkInterfaces",
           "apiVersion": "2018-10-01",
           "location": "[parameters('location')]",
           "dependsOn": [
-              "[concat('Microsoft.Network/networkSecurityGroups/', parameters('networkSecurityGroupName'))]",
-              "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
+              "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
+              "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
               "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName'))]"
           ],
           "properties": {
@@ -154,7 +136,7 @@
                       }
                   }
               ],
-              "enableAcceleratedNetworking": "[parameters('enableAcceleratedNetworking')]",
+              "enableAcceleratedNetworking": true,
               "networkSecurityGroup": {
                   "id": "[variables('nsgId')]"
               }
@@ -166,12 +148,19 @@
           }
       },
       {
-          "name": "[parameters('networkSecurityGroupName')]",
+          "name": "sqlNSG",
           "type": "Microsoft.Network/networkSecurityGroups",
           "apiVersion": "2019-02-01",
           "location": "[parameters('location')]",
           "properties": {
-              "securityRules": "[parameters('networkSecurityGroupRules')]"
+            "priority": 300,
+            "protocol": "TCP",
+            "access": "Allow",
+            "direction": "Inbound",
+            "sourceAddressPrefix": "*",
+            "sourcePortRange": "*",
+            "destinationAddressPrefix": "*",
+            "destinationPortRange": "3389"
           },
           "tags": {
               "environment": "dev",
@@ -180,15 +169,24 @@
           }
       },
       {
-          "name": "[parameters('virtualNetworkName')]",
+          "name": "[variables('virtualNetworkName')]",
           "type": "Microsoft.Network/virtualNetworks",
           "apiVersion": "2019-02-01",
           "location": "[parameters('location')]",
           "properties": {
               "addressSpace": {
-                  "addressPrefixes": "[parameters('addressPrefixes')]"
+                  "addressPrefixes": [
+                      "10.0.0.0/24"
+                  ]
               },
-              "subnets": "[parameters('subnets')]"
+              "subnets": [
+                  {
+                    "name": "sql",
+                    "properties": {
+                        "addressPrefix": "10.0.0.0/24"
+                        }
+                    }
+                ]
           },
           "tags": {
               "environment": "dev",
@@ -219,7 +217,7 @@
           "apiVersion": "2018-10-01",
           "location": "[parameters('location')]",
           "dependsOn": [
-              "[concat('Microsoft.Network/networkInterfaces/', parameters('networkInterfaceName'))]"
+              "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'))]"
           ],
           "properties": {
               "hardwareProfile": {
@@ -259,7 +257,7 @@
               "networkProfile": {
                   "networkInterfaces": [
                       {
-                          "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
+                          "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName'))]"
                       }
                   ]
               },

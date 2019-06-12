@@ -45,7 +45,7 @@
       "subnets": {
           "value": [
               {
-                  "name": "default",
+                  "name": "sql",
                   "properties": {
                       "addressPrefix": "10.0.0.0/24"
                   }
