@@ -32,7 +32,7 @@
       "sqlVirtualMachineName": "sqltest",
       "sqlVirtualMachineLocation": "eastus2",
       "virtualMachineSize": "Standard_D64s_v3",
-      "virtualMachineName": "sqltestvm",
+      "virtualMachineName": "sqltest",
       "osDiskType": "Premium_LRS",
       "dataDisks": [
         {
