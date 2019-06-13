@@ -4,13 +4,17 @@
   "parameters": {
       "location": {
           "type": "string",
-          "defaultValue": "eastus2"
+          "defaultValue": "eastus2",
+          "allowedValues": [
+              "eastus2"
+          ]
       },
       "adminUsername": {
-          "type": "string"
+          "type": "string",
+          "defaultValue": "sqladmin"
       },
       "adminPassword": {
-          "type": "secureString"
+          "type": "securestring"
       }
   },
   "variables": {
