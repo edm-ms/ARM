@@ -1,4 +1,4 @@
-# Multi-Region Virtual Networks With Peering and 2 Subnets Per-Region.
+# Deploy an IaaS VM with SQL Enterprise pre-installed.
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fedm-ms%2FARM%2Fmaster%2FSQL-and-Backup%2Ftemplate.json" target="_blank" rel="noopener noreferrer">
 
