@@ -1,35 +1,35 @@
 {
-  "mode": "All",
-  "policyRule": {
-    "if": {
-      "allOf": [
-        {
-          "field": "type",
-          "like": "Microsoft.Network/*"
+    "mode": "All",
+    "policyRule": {
+        "if": {
+            "allOf": [{
+                    "field": "type",
+                    "like": "Microsoft.Network/*"
+                },
+                {
+                    "not": {
+                        "field": "type",
+                        "in": "[parameters('networkAllowed')]"
+                    }
+                }
+            ]
         },
-        {
-          "not": {
-            "field": "type",
-            "in": "[parameters('networkAllowed')]"
-          }
+        "then": {
+            "effect": "deny"
         }
-      ]
     },
-    "then": {
-      "effect": "deny"
+    "parameters": {
+        "networkAllowed": {
+            "type": "Array",
+            "metadata": {
+                "description": "This is a set of allowed network items end-users can provision.",
+                "displayName": "Allowed network items"
+            },
+            "defaultValue": [
+                "Microsoft.Network/networkInterfaces",
+                "Microsoft.Network/loadBalancers",
+                "Microsoft.Network/networkSecurityGroups"
+            ]
+        }
     }
-  },
-  "parameters": {
-    "networkAllowed": {
-      "type": "Array",
-      "metadata": {
-        "description": "This is a set of allowed network items end-users can provision.",
-        "displayName": "Allowed network items"
-      },
-      "defaultValue": [ 
-          "Microsoft.Network/networkInterfaces", 
-          "Microsoft.Network/loadBalancers" 
-          ]
-    }
-  }
 }
